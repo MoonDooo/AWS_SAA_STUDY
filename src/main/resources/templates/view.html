@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Question Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .question-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .question-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-body {
+            margin-bottom: 15px;
+        }
+
+        .options {
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            padding: 10px;
+            transition: border 0.3s ease;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .reveal-solution-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .translate-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .edit-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .view-index {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .large-text-input {
+            width: 100%;
+            height: 150px;
+            font-size: 16px;
+            padding: 10px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<script>
+
+    function edit(event, id){
+        event.preventDefault();
+        window.location.href = 'form/' + id;
+    }
+
+    let isCollected = false;
+    // 체크 아이콘을 토글하는 함수
+    function toggleCheckIcon() {
+        const correctViews = document.querySelectorAll('[data-view-collect="true"]');
+
+        if (!isCollected) {
+            correctViews.forEach(view => {
+                view.style.border = "2px solid green";
+            });
+            isCollected = true;
+        } else {
+            correctViews.forEach(view => {
+                view.style.border = "1px solid transparent";
+            });
+            isCollected = false;
+        }
+    }
+
+    let isTranslated = true;
+
+    function toggleTranslate(event, id){
+        event.preventDefault();
+        let url = null;
+        if (isTranslated){
+            url = "/q/api/"+id;
+        }else{
+            url = "/q/api/"+id;
+        }
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function(response) {
+                isTranslated = !isTranslated;
+                if (isTranslated){
+                    $('#question-text').text(response.data.korean);
+                }
+                else {
+                    $('#question-text').text(response.data.english);
+                }
+
+                if (response.data.views) {
+                    response.data.views.forEach(function(view) {
+                        let viewElement = $(`[data-view-id="${view.id}"]`);
+
+                        if (isTranslated){
+                            viewElement.find('p').text(view.korean);
+                        }else{
+                            viewElement.find('p').text(view.english);
+                        }
+
+                        viewElement.find('input[type="checkbox"]').prop('checked', view.selected);
+                    });
+                }
+            },
+            error: function() {
+                alert('DAMN IT');
+            }
+        });
+    }
+
+    function saveText(event, id) {
+        event.defaultPrevented;
+
+        const inputText = $('#largeTextInput').val();
+
+        let allData = {
+            memo : inputText,
+            id : id
+        }
+        $.ajax({
+            type: "POST",
+            url: "/q/api/memo", // 서버에 맞는 경로로 수정
+            contentType: 'application/json',
+            data: JSON.stringify(allData),
+            success: function (response) {
+                alert("저장됨");
+            },
+            error: function () {
+                alert('DAMN IT');
+            }
+        });
+    }
+</script>
+<div class="container">
+    <div class="question-container">
+        <div class="question-header">
+            <h3 th:text="'Question #' + ${question.getId()}"></h3>
+        </div>
+
+        <div class="question-body">
+            <p id="question-text" th:text="${question.korean}" style="white-space: pre-wrap;
+       font-size: 18px;
+       font-weight: 500;
+       font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+       line-height: 1.6;
+       text-align: justify;
+       color: #333;
+       background-color: #f9f9f9;
+       padding: 15px;
+       border-radius: 8px;
+       letter-spacing: 0.5px;
+       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);"></p>
+        </div>
+
+        <div th:each="view, iter : ${question.views}" class="options" th:data-view-id="${view.id}" th:data-view-collect="${view.isCollect()}">
+            <div style="display: flex; align-items: center;">
+                <span class="view-index" th:text="${iter.index + 1} + '.'" style="margin-right: 10px;"></span>
+                <input type="checkbox" name="selectedViews" th:value="${view.getId()}" style="margin-right: 10px;">
+                <p th:text="${view.korean}" style="margin: 0; display: inline-block;"></p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="reveal-solution-btn" onclick="toggleCheckIcon()">정답</button>
+            <button class="translate-btn" th:onclick="|toggleTranslate(event, '${question.id}')|">번역전</button>
+            <button class="edit-btn" th:onclick="|edit(event, '${question.id}')|">수정</button>
+        </div>
+
+        <!-- 새로운 큰 텍스트 입력 필드 -->
+        <textarea id="largeTextInput" class="large-text-input" placeholder="여기에 입력하세요..." th:text="${question.memo == null? '' : question.memo}"></textarea>
+
+        <!-- 저장 버튼 -->
+        <button class="save-btn" th:onclick="|saveText(event, '${question.id}')|">저장</button>
+    </div>
+</div>
+
+</body>
+</html>

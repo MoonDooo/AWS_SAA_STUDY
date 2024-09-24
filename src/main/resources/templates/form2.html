@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Question Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .question-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            max-width: 800px;
+        }
+
+        .question-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .question-body {
+            margin-bottom: 15px;
+        }
+
+        .options {
+            margin-bottom: 20px;
+        }
+
+        .options p {
+            margin: 5px 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .reveal-solution-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .translate-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<script>
+    let isTranslated = {};
+
+    // 번역 상태 토글 함수
+    function toggleTranslate(viewId) {
+        if (isTranslated[viewId] === undefined) {
+            isTranslated[viewId] = false; // 기본값: 번역전
+        }
+
+        // 번역 상태 토글
+        isTranslated[viewId] = !isTranslated[viewId];
+
+        // 버튼 업데이트
+        const translateButton = document.getElementById(`translate-btn-${viewId}`);
+        let url = `/tq/${viewId}`;
+        if (isTranslated[viewId]) {
+            url = `/q/${viewId}`
+            translateButton.textContent = '번역후';
+            translateButton.classList.remove('btn-translate-blue');
+            translateButton.classList.add('btn-translate-green');
+        } else {
+            translateButton.textContent = '번역전';
+            translateButton.classList.remove('btn-translate-green');
+            translateButton.classList.add('btn-translate-blue');
+        }
+
+        // AJAX 요청 (서버로 번역 상태 전송)
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ translated: isTranslated[viewId] })
+        }).then(response => {
+            if (response.ok) {
+                $
+            }
+        }).catch(error => {
+            alert('번역 상태를 변경하는 중 오류가 발생했습니다.');
+        });
+    }
+
+    // 삭제 AJAX 함수
+    function deleteView(viewId) {
+        if (confirm('정말로 삭제하시겠습니까?')) {
+            fetch(`/views/${viewId}`, {
+                method: 'DELETE'
+            }).then(response => {
+                if (response.ok) {
+                    // 페이지를 새로 고침하여 삭제 반영
+                    window.location.reload();
+                }
+            }).catch(error => {
+                alert('삭제하는 중 오류가 발생했습니다.');
+            });
+        }
+    }
+
+
+    let isCollected = false;
+
+    // 체크 아이콘을 토글하는 함수
+    function toggleCheckIcon() {
+        const checkIcon = document.getElementById(`check-icon-${viewId}`);
+        if (isCollected) {
+            checkIcon.classList.remove('visible');
+            isCollected = false;
+        } else {
+            checkIcon.classList.add('visible');
+            isCollected = true;
+        }
+    }
+</script>
+<div class="question-container">
+    <div class="question-header">
+        <h3 th:text="'Question #' + ${q.getId()}"></h3>
+    </div>
+
+    <div class="question-body">
+        <h2 th:text="${question.question}"></h2>
+    </div>
+
+    <div th:each="view : ${question.views}" class="options" th:data-view-id="${view.id}">
+        <!-- View Text -->
+        <div>
+            <p th:text="${view.view}"></p>
+        </div>
+        <span th:if="${view.isCollect()}" class="check-icon">✔</span>
+    </div>
+
+    <div class="buttons">
+        <button class="reveal-solution-btn" onclick="toggleCheckIcon()">정답</button>
+        <button class="translate-btn">번역전</button>
+        <button class="delete-btn">삭제</button>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Page</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #007bff;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .small-inputs {
+            margin-bottom: 20px;
+        }
+
+        .small-inputs2 {
+            margin-bottom: 20px;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        #submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #edit-btn {
+            background-color: #284CA7FF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        #submit-btn:hover {
+            background-color: #218838;
+        }
+
+
+        #add-question-btn, #add-translated-question-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #add-question-btn:hover, #add-translated-question-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center; /* 체크박스와 입력 필드가 수평으로 정렬되도록 조정 */
+            margin-bottom: 10px;
+        }
+
+        .input-group2 {
+            display: flex;
+            align-items: center; /* 체크박스와 입력 필드가 수평으로 정렬되도록 조정 */
+            margin-bottom: 10px;
+        }
+
+        .input-group input[type="checkbox"],
+        .input-group2 input[type="checkbox"] {
+            width: 15px;  /* 체크박스의 너비를 줄임 */
+            height: 15px; /* 체크박스의 높이도 줄임 */
+            margin-right: 10px; /* 체크박스와 텍스트 사이의 간격 조절 */
+            vertical-align: middle; /* 텍스트와 체크박스가 수평 정렬 */
+        }
+
+        .input-group input[type="text"],
+        .input-group2 input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .input-group .remove-btn,
+        .input-group2 .remove-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            margin-left: 10px; /* 버튼과 입력 필드 사이의 간격 */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <input type="hidden" id="question-id" th:value="${question != null ? question.id : ''}">
+    <!-- Question Section -->
+    <div class="section">
+        <h2>Question</h2>
+        <textarea id="question-input" placeholder="번역전 문제" rows="4"
+                  th:text="${#lists.isEmpty(question) ? '' : question.english}"></textarea>
+
+        <div class="small-inputs">
+            <div th:if="${question != null}">
+                <div th:if="${question != null}"  th:each="view, iter : ${question.getViews()}" class="input-group" th:data-id="${view.id}">
+                    <input type="checkbox" class="check-btn" th:checked="${view.isCollect()}" th:data-index="${iter.index}" onchange="fnCheckChange.call(this)">
+                    <input type="text" th:placeholder="'Translation Detail ' + (${iter.index + 1})" th:value="${view.english}">
+                    <button class="remove-btn">X</button>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(question)}" th:each="i : ${#numbers.sequence(1, 4)}" class="input-group">
+                <input type="checkbox" class="check-btn" th:data-index="${i - 1}" onchange="fnCheckChange.call(this)">
+                <input type="text" th:placeholder="|Translation Detail ${i}|" >
+                <button class="remove-btn">X</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Translated Question Section -->
+    <div class="section">
+        <h2>Translated Question</h2>
+        <textarea id="translated-question-input" placeholder="번역후 문제" rows="4"
+                  th:text="${#lists.isEmpty(question) ? '' : question.korean}"></textarea>
+
+        <div class="small-inputs2">
+            <div  th:if="${question != null}">
+                <div th:each="view, iter : ${question.getViews()}" class="input-group2" th:data-id="${view.id}">
+                    <input type="checkbox" class="check-btn" th:checked="${view.isCollect()}" th:data-index="${iter.index}"  onchange="fnCheckChange.call(this)">
+                    <input type="text" th:placeholder="'Translation Detail ' + (${iter.index + 1})" th:value="${view.korean}">
+                    <button class="remove-btn">X</button>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(question)}" th:each="i : ${#numbers.sequence(1, 4)}" class="input-group2">
+                <input type="checkbox" class="check-btn" th:data-index="${i - 1}" onchange="fnCheckChange.call(this)">
+                <input type="text" th:placeholder="|Translation Detail ${i}|">
+                <button class="remove-btn">X</button>
+            </div>
+        </div>
+
+        <!-- Add button -->
+        <button id="add-translated-question-btn">추가</button>
+    </div>
+    <div th:if="${question != null}" class="submit-section">
+        <button id="edit-btn">수정</button>
+    </div>
+    <div th:if="${#lists.isEmpty(question)}" class="submit-section">
+        <button id="submit-btn">등록</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+// Submit 버튼 클릭 이벤트
+        $('#submit-btn').on('click', function(event) {
+            event.preventDefault(); // 기본 버튼 동작 방지
+
+            fnSubmit();
+        });
+        $('#edit-btn').on('click', function(event) {
+            event.preventDefault(); // 기본 버튼 동작 방지
+
+            fnSubmit();
+        });
+
+        /*// Question 섹션의 Add More 버튼 클릭 이벤트
+        $('#add-question-btn').on('click', function() {
+            const inputGroup = $('<div class="input-group">' +
+                '<input type="checkbox" class="check-btn">' +
+                '<input type="text" placeholder="Additional Detail">' +
+                '<button class="remove-btn">X</button></div>');
+
+            $('.small-inputs').append(inputGroup);
+
+            // 삭제 버튼 기능 추가
+            inputGroup.find('.remove-btn').on('click', function() {
+                $(this).parent().remove();
+            });
+        });*/
+
+        let index = $('.input-group2').length;
+        // Translated Question 섹션의 Add More 버튼 클릭 이벤트
+        $('#add-translated-question-btn').on('click', function() {
+
+            const inputGroup = $('<div class="input-group2">' +
+                '<input type="checkbox" class="check-btn" data-index="' + index + '" onchange="fnCheckChange.call(this)">' +
+                '<input type="text" placeholder="Additional Translation Detail">' +
+                '<button class="remove-btn">X</button></div>');
+
+            $('.small-inputs2').append(inputGroup);
+
+            // 삭제 버튼 기능 추가
+            inputGroup.find('.remove-btn').on('click', function() {
+                const index = $(this).parent().index();
+                $('.small-inputs2 .input-group2').eq(index).remove();
+                $('.small-inputs .input-group').eq(index).remove();
+            });
+
+            const inputGroup2 = $('<div class="input-group">' +
+                '<input type="checkbox" class="check-btn" data-index="' + index + '" onchange="fnCheckChange.call(this)">' +
+                '<input type="text" placeholder="Additional Detail">' +
+                '<button class="remove-btn">X</button></div>');
+
+            $('.small-inputs').append(inputGroup2);
+
+            // 삭제 버튼 기능 추가
+            inputGroup2.find('.remove-btn').on('click', function() {
+                const index = $(this).parent().index();
+                $('.small-inputs2 .input-group2').eq(index).remove();
+                $('.small-inputs .input-group').eq(index).remove();
+            });
+            index++;
+        });
+
+        // 초기 삭제 버튼에 대한 이벤트 설정
+        $('.remove-btn').on('click', function() {
+            const index = $(this).parent().index();
+            $('.small-inputs2 .input-group2').eq(index).remove();
+            $('.small-inputs .input-group').eq(index).remove();
+
+        });
+    });
+    function fnCheckChange(){
+        debugger;
+        const index = $(this).data('index'); // 체크박스의 인덱스 값을 가져옴
+        const isChecked = $(this).is(':checked'); // 체크된 상태 확인
+
+        // 동일한 인덱스의 다른 섹션의 체크박스 상태를 동기화
+        $('.small-inputs .check-btn[data-index="' + index + '"]').prop('checked', isChecked);
+        $('.small-inputs2 .check-btn[data-index="' + index + '"]').prop('checked', isChecked);
+    }
+    function fnSubmit() {
+        const questionData = {
+            question: $('#question-input').val(),
+            translatedQuestion: $('#translated-question-input').val(),
+            viewList: []
+        };
+
+        // 두 그룹의 작은 input과 체크박스를 동시에 처리
+        $('.small-inputs .input-group').each(function (index) {
+            debugger;
+            // 첫 번째 그룹의 영어 텍스트와 체크박스 상태
+            const englishDetail = $(this).find('input[type="text"]').val();
+            const englishChecked = $(this).find('input[type="checkbox"]').is(':checked');
+
+            // 두 번째 그룹 (translated)의 한국어 텍스트와 체크박스 상태
+            const translatedGroup = $('.small-inputs2 .input-group2').eq(index);
+            const id = translatedGroup.data('id');
+            const koreanDetail = translatedGroup.find('input[type="text"]').val();
+            const koreanChecked = translatedGroup.find('input[type="checkbox"]').is(':checked');
+
+            // 데이터를 하나의 객체로 합쳐서 배열에 추가
+            questionData.viewList.push({
+                id: id,
+                english: englishDetail,
+                korean: koreanDetail,
+                collect: englishChecked || koreanChecked // 둘 중 하나라도 체크되어 있으면 true
+            });
+        });
+
+        let id = $('#question-id').val(); // 기본 URL
+        let url = '/q';
+        let type = 'POST';
+        if (id) {
+            url = '/q/' + id; // 수정할 때 사용하는 URL로 설정
+            type = 'PUT';
+        }
+
+        console.log(questionData);
+        // AJAX 요청
+        $.ajax({
+            type: type,
+            url: url, // 서버에 맞는 경로로 수정
+            contentType: 'application/json',
+            data: JSON.stringify(questionData),
+            success: function (response) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl; // 서버가 반환한 리다이렉트 URL로 이동
+                }
+            },
+            error: function () {
+                alert('DAMN IT');
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Question List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/css/question.css">
+</head>
+<body>
+<script>
+
+    function edit(event, id) {
+        event.preventDefault();
+        window.location.href = 'form/' + id;
+    }
+
+    function goMemo(event, id) {
+        event.preventDefault();
+        window.location.href = id;
+    }
+
+
+    // 체크 아이콘을 토글하는 함수
+    function toggleCheckIcon(event, id) {
+        debugger;
+        console.log(id);
+        const correctViews = document.querySelectorAll(`[data-question-id="${id}"][data-view-collect="true"]`);
+        const pElement = document.getElementById('question-text-' + id);
+
+        // data-is-collect 속성의 값을 가져옴
+        const isCollected = pElement.getAttribute('data-is-collect');
+
+        console.log(isCollected);
+
+        if (isCollected === 'false') {
+            // 정답인 부분에 초록색 테두리를 추가
+            correctViews.forEach(view => {
+                view.style.border = "2px solid green";
+            });
+            pElement.setAttribute('data-is-collect', 'true');
+        } else {
+            // 정답 강조 해제 (테두리 제거)
+            correctViews.forEach(view => {
+                view.style.border = "1px solid transparent"; // 테두리 제거 (투명)
+            });
+            pElement.setAttribute('data-is-collect', 'false');
+        }
+    }
+
+    let isTranslated = true;
+
+    function toggleTranslate(event, id) {
+        event.preventDefault(); // 기본 버튼 동작 방지
+        let url = "/q/api/" + id;
+        // AJAX 요청
+        $.ajax({
+            type: 'GET',
+            url: url, // 서버에 맞는 경로로 수정
+            success: function (response) {
+                debugger;
+
+                console.log(isTranslated);
+                isTranslated = !isTranslated;
+                if (isTranslated) {
+                    $('#question-text-' + id).text(response.data.korean);
+                } else {
+                    $('#question-text-' + id).text(response.data.english);
+                }
+
+                if (response.data.views) {
+                    response.data.views.forEach(function (view) {
+                        // 각 view의 id에 맞는 요소를 찾아서 텍스트 업데이트
+                        let viewElement = $(`[data-view-id="${view.id}"]`);
+
+                        // view 텍스트 업데이트
+                        if (isTranslated) {
+                            viewElement.find('p').text(view.korean);
+                        } else {
+                            viewElement.find('p').text(view.english);
+                        }
+
+                        viewElement.find('input[type="checkbox"]').prop('checked', view.selected);
+                    });
+                }
+            },
+            error: function () {
+                alert('DAMN IT');
+            }
+        });
+    }
+</script>
+<div class="container">
+    <div class="container2">
+        <a href="/q/form" class="btn">등록</a>
+    </div>
+
+    <div th:each="q : ${question.getData()}" class="question-item" th:data="${q.id}">
+        <div class="question-header">
+            <h3 th:text="'Question #' + ${q.getId()}"></h3>
+        </div>
+        <div class="question-container">
+            <div class="question-body">
+                <p th:id="|question-text-${q.id}|" th:data-is-collect="false" id="question-text" th:text="${q.korean}" style="white-space: pre-wrap;
+       font-size: 18px;
+       font-weight: 500;
+       font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+       line-height: 1.6;
+       text-align: justify;
+       color: #333;
+       background-color: #f9f9f9;
+       padding: 15px;
+       border-radius: 8px;
+       letter-spacing: 0.5px;
+       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);"></p>
+            </div>
+
+            <div th:each="view, iter : ${q.views}" class="options" th:data-view-id="${view.id}"
+                 th:data-question-id="${q.id}" th:data-view-collect="${view.isCollect()}" >
+                <div style="display: flex; align-items: center;">
+                    <span class="view-index" th:text="${iter.index + 1} + '.'" style="margin-right: 10px;"></span>
+                    <input type="checkbox" name="selectedViews" th:value="${view.getId()}" style="margin-right: 10px;">
+                    <p th:text="${view.korean}" style="margin: 0; display: inline-block;"></p>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="reveal-solution-btn" th:onclick="|toggleCheckIcon(event, '${q.id}')|">정답</button>
+                <button class="translate-btn" th:onclick="|toggleTranslate(event, '${q.id}')|">번역전</button>
+                <button class="edit-btn" th:onclick="|edit(event, '${q.id}')|">수정</button>
+                <button class="memo-btn" th:onclick="|goMemo(event, '${q.id}')|">메모보기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination Section -->
+<div class="pagination" th:if="${question.totalPage > 0}">
+
+    <!-- 페이지 번호 링크 -->
+    <div>
+        <!-- << 버튼: 처음 페이지로 이동 -->
+        <a th:if="${question.page > 0}"
+           th:href="@{/q/list(page=${0}, perPage=${question.perPage})}">
+            &lt;&lt;
+        </a>
+
+        <!-- Previous 버튼: 첫 페이지(0번째 페이지)가 아닌 경우에만 표시 -->
+        <a th:if="${question.page > 0}"
+           th:href="@{/q/list(page=${question.page - 1}, perPage=${question.perPage})}">Previous
+        </a>
+
+        <!-- 페이지 번호 표시: 현재 페이지를 중심으로 ±4 페이지만 보여줌 -->
+        <span th:each="i : ${#numbers.sequence(question.page - 4 < 0 ? 0 : question.page - 4 , question.page + 4 >= question.totalPage ? question.totalPage - 1 : question.page + 4)}">
+        <a th:href="@{/q/list(page=${i}, perPage=${question.perPage})}"
+           th:text="${i + 1}"
+           th:classappend="${i == question.page} ? 'active' : ''">
+        </a>
+    </span>
+
+        <!-- Next 버튼: 마지막 페이지가 아닌 경우에만 표시 -->
+        <a th:if="${question.page < question.totalPage - 1}"
+           th:href="@{/q/list(page=${question.page + 1}, perPage=${question.perPage})}">
+            Next
+        </a>
+
+        <!-- >> 버튼: 마지막 페이지로 이동 -->
+        <a th:if="${question.page < question.totalPage - 1}"
+           th:href="@{/q/list(page=${question.totalPage - 1}, perPage=${question.perPage})}">
+            &gt;&gt;
+        </a>
+    </div>
+
+    <!-- Page input section -->
+    <div class="page-input">
+        <form action="" method="get">
+            <label for="page">페이지:</label>
+            <input type="number" id="page" name="page" min="0" th:max="${question.getTotalPage()}"
+                   th:value="${question.getPage()}">
+            <input type="hidden" name="perPage" th:value="${question.getPerPage()}">
+            <button type="submit">바로가기</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

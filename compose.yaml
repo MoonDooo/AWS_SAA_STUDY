@@ -1,0 +1,12 @@
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=AWS-SAA-C03'
+      - 'MYSQL_PASSWORD=MoonDooo'
+      - 'MYSQL_ROOT_PASSWORD=MoonDooo'
+      - 'MYSQL_USER=MoonDooo'
+    ports:
+      - '3306'
+    volumes:
+      - C:\Users\ruddh\Desktop\docker\mysqls3:/var/lib/mysql

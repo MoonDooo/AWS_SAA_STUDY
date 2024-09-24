@@ -1,0 +1,220 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    max-width: 800px;
+    position: relative; /* 화살표를 절대 위치로 추가하기 위해 */
+}
+
+.question-container {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    position: relative; /* 화살표 위치를 기준으로 삼기 위해 */
+}
+
+.question-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.question-body {
+    margin-bottom: 15px;
+}
+
+.options {
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    padding: 10px;
+    transition: border 0.3s ease;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reveal-solution-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.translate-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.edit-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.memo-btn {
+    background-color: #35d6dc;
+    color: white;
+}
+
+.view-index {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* 화살표 버튼 스타일 */
+.arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px; /* 화살표 크기 */
+    font-weight: bold;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.arrow-left {
+    left: -60px;
+}
+
+.arrow-right {
+    right: -60px;
+}
+
+.arrow-btn:hover {
+    color: #007bff; /* 호버 시 파란색 강조 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+}
+
+.container2{
+    text-align: right;
+}
+
+.question-item {
+    background-color: white;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.question-header span:first-child {
+    font-weight: bold;
+}
+
+.question-content {
+    padding: 10px;
+}
+
+.question-content p {
+    margin: 10px 0;
+}
+
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pagination a.active {
+    background-color: #0056b3;
+}
+
+.pagination a:hover {
+    background-color: #0056b3;
+}
+
+.pagination button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination button:hover {
+    background-color: #0056b3;
+}
+
+/* Page input */
+.page-input {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.page-input input[type="number"] {
+    padding: 5px;
+    margin-right: 10px;
+    width: 60px;
+}
+
+.page-input button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.page-input button:hover {
+    background-color: #0056b3;
+}
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
