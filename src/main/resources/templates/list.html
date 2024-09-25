@@ -94,9 +94,9 @@
         <a href="/q/form" class="btn">등록</a>
     </div>
 
-    <div th:each="q : ${question.getData()}" class="question-item" th:data="${q.id}">
+    <div th:each="q, iter : ${question.getData()}" class="question-item" th:data="${q.id}">
         <div class="question-header">
-            <h3 th:text="'Question #' + ${q.getId()}"></h3>
+            <h3 th:text="'Question #' + ${question.page * question.perPage + iter.index + 1}"></h3>
         </div>
         <div class="question-container">
             <div class="question-body">
